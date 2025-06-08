@@ -25,40 +25,23 @@ public class CompraLibroDAOImpl implements CompraLibroDAO{
 
         String sql = "SELECT 1 FROM compra_libro WHERE id_usuario = ? AND id_libro = ? LIMIT 1;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario, id_libro);
-        return rs.next();
+        return DBHelper.obtenerEntidad(sql, rs -> true, id_usuario, id_libro) !=null;
     }
 
     @Override
     public List<CompraLibro> verComprasPorUsuario(int id_usuario) throws Exception {
 
-        List<CompraLibro> compras = new ArrayList<>();
-
         String sql = "SELECT * FROM compra_libro WHERE id_usuario = ?;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario);
-
-        while(rs.next()){
-
-            compras.add(mapearCompra(rs));
-        }
-        return compras;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearCompra, id_usuario);
     }
 
     @Override
     public List<CompraLibro> verCompras() throws Exception {
 
-        List<CompraLibro> compras = new ArrayList<>();
-
         String sql = "SELECT * FROM compra_libro;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql);
-
-        while(rs.next()){
-
-            compras.add(mapearCompra(rs));
-        }
-        return compras;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearCompra);
     }
 
     private CompraLibro mapearCompra(ResultSet rs) throws Exception{

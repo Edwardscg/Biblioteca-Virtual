@@ -13,7 +13,7 @@ public class LibroDAOImpl implements LibroDAO{
 
         String sql = "INSERT INTO libro (titulo, autor, genero, descripcion, pdf_url, portada_url, precio, puntuacion_promedio, cantidad_valoraciones, fecha_publicacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-        int filasAfectadas=DBHelper.manejarEntidad(sql, libro.getTitulo(), libro.getAutor(), libro.getGenero(), libro.getDescripcion(), libro.getPdf_url(), libro.getPortada_url(), libro.getPrecio(), libro.getPuntutacion_promedio(), libro.getCantidad_valoraciones(), libro.getFecha_publicacion());
+        int filasAfectadas=DBHelper.manejarEntidad(sql, libro.getTitulo(), libro.getAutor(), libro.getGenero(), libro.getDescripcion(), libro.getPdf_url(), libro.getPortada_url(), libro.getPrecio(), libro.getPuntuacion_promedio(), libro.getCantidad_valoraciones(), Date.valueOf(libro.getFecha_publicacion()));
 
         if(filasAfectadas ==0){
 
@@ -26,7 +26,7 @@ public class LibroDAOImpl implements LibroDAO{
 
         String sql = "UPDATE libro SET titulo = ?, autor = ?, genero = ?, descripcion = ?, pdf_url = ?, portada_url = ?, precio = ?, puntuacion_promedio = ?, cantidad_valoraciones = ?, fecha_publicacion = ? WHERE id_libro = ?;";
 
-        int filaAfectada = DBHelper.manejarEntidad(sql, libro.getTitulo(), libro.getAutor(), libro.getGenero(), libro.getDescripcion(), libro.getPdf_url(), libro.getPortada_url(), libro.getPrecio(), libro.getPuntutacion_promedio(), libro.getCantidad_valoraciones(), Date.valueOf(libro.getFecha_publicacion()), libro.getId());
+        int filaAfectada = DBHelper.manejarEntidad(sql, libro.getTitulo(), libro.getAutor(), libro.getGenero(), libro.getDescripcion(), libro.getPdf_url(), libro.getPortada_url(), libro.getPrecio(), libro.getPuntuacion_promedio(), libro.getCantidad_valoraciones(), Date.valueOf(libro.getFecha_publicacion()), libro.getId());
 
         if(filaAfectada==0){
 
@@ -68,12 +68,17 @@ public class LibroDAOImpl implements LibroDAO{
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
 
-                libro = new Libro(rs.getInt("id_libro"), rs.getString("titulo"), rs.getString("autor"), rs.getString("genero"), rs.getString("descricpcion"), rs.getString("pdf_url"), rs.getString("portada_url"), rs.getInt("precio"), rs.getFloat("puntuacion_promedio"), rs.getInt("cantidad_valoraciones"), rs.getDate("fecha_publicacion").toLocalDate());
+                libro = new Libro(rs.getInt("id_libro"), rs.getString("titulo"), rs.getString("autor"), rs.getString("genero"), rs.getString("descripcion"), rs.getString("pdf_url"), rs.getString("portada_url"), rs.getInt("precio"), rs.getFloat("puntuacion_promedio"), rs.getInt("cantidad_valoraciones"), rs.getDate("fecha_publicacion").toLocalDate());
             }
 
         }catch (SQLException e){
 
             throw new Exception("Error al buscar libro por ID: " + e.getMessage(), e);
+        }
+
+        if(libro ==null){
+
+            throw new Exception("No se encontró un libro con ID: " + id_libro);
         }
         return libro;
     }
@@ -102,8 +107,8 @@ public class LibroDAOImpl implements LibroDAO{
         return buscarLibrosPorCampo(sql, "%" + genero + "%");
     }
 
-    private Libro buscarLibroPorCampo(ResultSet rs) throws Exception{
-        Libro libro = new Libro(rs.getInt("id_libro"), rs.getString("titulo"), rs.getString("autor"), rs.getString("genero"), rs.getString("descricpcion"), rs.getString("pdf_url"), rs.getString("portada_url"), rs.getInt("precio"), rs.getFloat("puntuacion_promedio"), rs.getInt("cantidad_valoraciones"), rs.getDate("fecha_publicacion").toLocalDate());
+    private Libro mapearLibro(ResultSet rs) throws Exception{
+        Libro libro = new Libro(rs.getInt("id_libro"), rs.getString("titulo"), rs.getString("autor"), rs.getString("genero"), rs.getString("descripcion"), rs.getString("pdf_url"), rs.getString("portada_url"), rs.getInt("precio"), rs.getFloat("puntuacion_promedio"), rs.getInt("cantidad_valoraciones"), rs.getDate("fecha_publicacion").toLocalDate());
 
         return libro;
     }
@@ -120,7 +125,7 @@ public class LibroDAOImpl implements LibroDAO{
 
             while(rs.next()){
 
-                libros.add(buscarLibroPorCampo(rs));
+                libros.add(mapearLibro(rs));
             }
 
         }catch(SQLException e){

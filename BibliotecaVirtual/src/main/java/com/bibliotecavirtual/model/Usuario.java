@@ -6,7 +6,7 @@ public abstract class Usuario {
     protected String nombre;
     protected String correo;
     protected String contrasena;
-    protected String tipo_usuario; // usuarioNomral, usuarioEstudiante, administrador
+    protected String tipo_usuario; // administrador, cliente
 
     public Usuario(int id, String nombre, String correo, String contrasena, String tipo_usuario) {
         this.id = id;
@@ -16,9 +16,7 @@ public abstract class Usuario {
         this.tipo_usuario = tipo_usuario;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id;}
 
     public void setId(int id) {
         this.id = id;

@@ -22,17 +22,9 @@ public class MovimientoMonedaDAOImpl implements MovimientoMonedaDAO{
     @Override
     public List<MovimientoMoneda> verMovimientosPorUsuario(int id_usuario) throws Exception {
 
-        List<MovimientoMoneda> movimientos = new ArrayList<>();
-
         String sql = "SELECT * FROM movimiento_moneda WHERE id_usuario = ? ORDER BY fecha DESC;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario);
-
-        while (rs.next()){
-
-            movimientos.add(mapearMovimiento(rs));
-        }
-        return movimientos;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearMovimiento, id_usuario);
     }
 
     @Override
@@ -42,14 +34,7 @@ public class MovimientoMonedaDAOImpl implements MovimientoMonedaDAO{
 
         String sql = "SELECT * FROM movimiento_moneda ORDER BY fecha DESC;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql);
-
-        while(rs.next()){
-
-            movimientos.add(mapearMovimiento(rs));
-        }
-
-        return movimientos;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearMovimiento);
     }
 
     private MovimientoMoneda mapearMovimiento(ResultSet rs) throws Exception{

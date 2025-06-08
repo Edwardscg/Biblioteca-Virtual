@@ -14,20 +14,11 @@ public class RecuperacionContrasenaDAO {
         DBHelper.manejarEntidad(sql, id_usuario, codigo, Timestamp.valueOf(fechaExpiracion));
     }
 
-    public boolean validarCodigo(int id_usuario, String codigo) throws SQLException{
+    public boolean validarCodigo(int id_usuario, String codigo) throws Exception {
 
         String sql = "SELECT usado, fecha_expiracion FROM recuperacion_contrasena WHERE id_usuario = ? AND codigo = ? AND usado = FALSE";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario, codigo);
-        if(rs.next()){
-
-                LocalDateTime fechaExpiracion = rs.getTimestamp("fecha_expiracion").toLocalDateTime();
-            boolean usado = rs.getBoolean("usado");
-
-            return !usado && fechaExpiracion.isAfter(LocalDateTime.now());
-        }
-
-        return false;
+        return DBHelper.obtenerEntidad(sql, rs -> true, id_usuario, id_usuario, codigo) !=null;
     }
 
     public void marcarCodigoComoUsado(int id_usuario, String codigo) throws SQLException{

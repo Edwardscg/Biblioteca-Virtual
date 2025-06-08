@@ -12,7 +12,8 @@ public class Alquiler {
     private EstadoAlquiler estado; // prestado o devuelto
     private int pagina_actual;
 
-    public Alquiler(int id, Cliente cliente, Libro libro, LocalDate fecha_inicio, LocalDate fecha_fin, EstadoAlquiler estado, int pagina_actual) {
+    public Alquiler(int id, Cliente cliente, Libro libro, LocalDate fecha_inicio, LocalDate fecha_fin,
+                    EstadoAlquiler estado, int pagina_actual) {
         this.id = id;
         this.cliente = cliente;
         this.libro = libro;

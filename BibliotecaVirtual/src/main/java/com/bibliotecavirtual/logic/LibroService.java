@@ -90,7 +90,7 @@ public class LibroService {
         if (libro.getPrecio() < 0) {
             throw new IllegalArgumentException("El precio no puede ser negativo.");
         }
-        if (libro.getPuntutacion_promedio() < 0.0 || libro.getPuntutacion_promedio() > 5.0) {
+        if (libro.getPuntuacion_promedio() < 0.0 || libro.getPuntuacion_promedio() > 5.0) {
             throw new IllegalArgumentException("La puntuación debe estar entre 0 y 5.");
         }
         if (libro.getCantidad_valoraciones() < 0) {

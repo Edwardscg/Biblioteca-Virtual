@@ -1,6 +1,5 @@
 package com.bibliotecavirtual.persistence;
 
-import com.bibliotecavirtual.logic.UsuarioService;
 import com.bibliotecavirtual.model.Cliente;
 import com.bibliotecavirtual.model.Libro;
 import com.bibliotecavirtual.model.Usuario;
@@ -40,14 +39,7 @@ public class ValoracionDAOImpl implements ValoracionDAO{
 
         String sql = "SELECT * FROM valoracion WHERE id_usuario = ? AND id_libro = ?;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario, id_libro);
-
-        if(rs.next()){
-
-            return mapearValoracion(rs);
-        }
-
-        return null;
+        return DBHelper.obtenerEntidad(sql, this::mapearValoracion, id_usuario, id_libro);
     }
 
     @Override
@@ -55,29 +47,17 @@ public class ValoracionDAOImpl implements ValoracionDAO{
 
         String sql = "SELECT AVG(puntuacion) AS promedio FROM valoracion WHERE id_libro = ?;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_libro);
+        Float promedio = DBHelper.obtenerEntidad(sql, rs -> rs.getFloat("promedio"), id_libro);
 
-        if(rs.next()){
-
-            return rs.getFloat("promedio");
-        }
-        return 0;
+        return promedio!=null ? promedio: 0;
     }
 
     @Override
     public List<Valoracion> verValoracionesPorLibro(int id_libro) throws Exception {
 
-        List<Valoracion> valoraciones = new ArrayList<>();
-
         String sql = "SELECT * FROM valoracion WHERE id_libro = ? ORDER BY fecha DESC;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_libro);
-
-        while (rs.next()){
-
-            valoraciones.add(mapearValoracion(rs));
-        }
-        return valoraciones;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearValoracion, id_libro);
     }
 
     @Override
@@ -85,13 +65,9 @@ public class ValoracionDAOImpl implements ValoracionDAO{
 
         String sql = "SELECT COUNT(*) AS total FROM valoracion WHERE id_usuario = ? AND id_libro = ?;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario, id_libro);
+        Integer total = DBHelper.obtenerEntidad(sql, rs->rs.getInt("total"), id_usuario, id_libro);
 
-        if (rs.next()){
-
-            return rs.getInt("total")>0;
-        }
-        return false;
+        return total != null && total>0;
     }
 
     private Valoracion mapearValoracion(ResultSet rs) throws Exception{

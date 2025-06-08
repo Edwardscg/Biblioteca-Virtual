@@ -17,7 +17,7 @@ public class MembresiaDAOImpl implements MembresiaDAO{
 
         String sql = "INSERT INTO membresia (id_usuario, fecha_inicio, fecha_fin, costo, estado) VALUES (?, ?, ?, ?, ?)";
 
-        DBHelper.manejarEntidad(sql, membresia.getCliente().getId(), membresia.getFechaInicio(), membresia.getFechaFin(), membresia.getCosto(), membresia.getEstado());
+        DBHelper.manejarEntidad(sql, membresia.getCliente().getId(), Date.valueOf(membresia.getFechaInicio()), Date.valueOf(membresia.getFechaFin()), membresia.getCosto(), membresia.getEstado().toString());
     }
 
     @Override
@@ -25,9 +25,7 @@ public class MembresiaDAOImpl implements MembresiaDAO{
 
         String sql = "UPDATE membresia SET estado = ?, fecha_fin = ? WHERE id_membresia = ?";
 
-        LocalDate fecha_actual = LocalDate.now();
-
-        DBHelper.manejarEntidad(sql, EstadoMembresia.finalizada.toString(), Date.valueOf(fecha_actual), id_membresia);
+        DBHelper.manejarEntidad(sql, EstadoMembresia.finalizada.toString(), Date.valueOf(LocalDate.now()), id_membresia);
     }
 
     @Override
@@ -35,45 +33,23 @@ public class MembresiaDAOImpl implements MembresiaDAO{
 
         String sql = "SELECT * FROM membresia WHERE id_membresia = ?";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_membresia);
-
-        if(rs.next()){
-
-            return mapearMembresia(rs);
-        }
-        return null;
+        return DBHelper.obtenerEntidad(sql, this::mapearMembresia, id_membresia);
     }
 
     @Override
     public List<Membresia> verMembresiasPorUsuario(int id_usuario) throws Exception {
 
-        List<Membresia> menbresias = new ArrayList<>();
-
         String sql = "SELECT * FROM membresia WHERE id_usuario = ? ORDER BY fecha_inicio DESC";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario);
-
-        while (rs.next()){
-
-            menbresias.add(mapearMembresia(rs));
-        }
-        return menbresias;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearMembresia, id_usuario);
     }
 
     @Override
     public List<Membresia> verMembresias() throws Exception {
 
-        List<Membresia> membresias = new ArrayList<>();
-
         String sql = "SELECT * FROM membresia ORDER BY fecha_inicio DESC";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql);
-
-        while (rs.next()){
-
-            membresias.add(mapearMembresia(rs));
-        }
-        return membresias;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearMembresia);
     }
 
     @Override
@@ -93,25 +69,19 @@ public class MembresiaDAOImpl implements MembresiaDAO{
 
         String sql = "SELECT COUNT(*) FROM membresia WHERE id_usuario = ? AND estado = ?";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario, EstadoMembresia.activa.toString());
+        Integer tiene_membresia = DBHelper.obtenerEntidad(sql, rs -> 1, id_usuario, EstadoMembresia.activa.toString());
 
-        if(rs.next()){
-
-            return rs.getInt(1) == 1;
-        }
-
-        return false;
-    }
-
-    private Cliente buscarClientePorId(int id_usuario) throws Exception{
-
-        UsuarioDAOImpl usuarioDAO = new UsuarioDAOImpl();
-        return (Cliente) usuarioDAO.buscarUsuarioPorId(id_usuario);
+        return tiene_membresia !=null;
     }
 
     private Membresia mapearMembresia(ResultSet rs) throws Exception{
+
+        UsuarioDAOImpl usuarioDAO = new UsuarioDAOImpl();
+
         int id_usuario = rs.getInt("id_usuario");
-        Cliente cliente = buscarClientePorId(id_usuario);
+
+        Cliente cliente = (Cliente) usuarioDAO.buscarUsuarioPorId(id_usuario);
+
         return new Membresia(rs.getInt("id_membresia"), cliente, rs.getDate("fecha_inicio").toLocalDate(), rs.getDate("fecha_fin").toLocalDate(), rs.getInt("costo"), EstadoMembresia.valueOf(rs.getString("estado")));
     }
 }

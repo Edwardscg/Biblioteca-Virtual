@@ -13,11 +13,13 @@ public class CompraLibroService {
 
     private CompraLibroDAOImpl compraLibroDAO;
     private UsuarioService usuarioService;
+    private NotificacionService notificacionService;
 
     public CompraLibroService(){
 
         this.compraLibroDAO = new CompraLibroDAOImpl();
         this.usuarioService = new UsuarioService();
+        this.notificacionService = new NotificacionService();
     }
 
     public void registrarCompra(CompraLibro compra) throws Exception{
@@ -27,6 +29,12 @@ public class CompraLibroService {
 
         Usuario usuario = usuarioService.buscarPorId(id_usuario);
         Cliente cliente = (Cliente) usuario;
+
+        if(compraLibroDAO.estaComprado(id_usuario, compra.getLibro().getId())){
+
+            throw new Exception("Ya ha comprado este libro anteriormente.");
+        }
+
         if(cliente.getMonedas()<costo){
 
             throw new Exception("No tiene monedas suficientes para comprar el libro.");
@@ -40,7 +48,6 @@ public class CompraLibroService {
         String tipo_notificacion = "Compra de Libro";
         String mensaje = "Se ha comprado el libro "+ compra.getLibro().getTitulo() + ".";
 
-        NotificacionService notificacionService = new NotificacionService();
         notificacionService.enviarNotificacion(id_usuario, tipo_notificacion, mensaje);
     }
 

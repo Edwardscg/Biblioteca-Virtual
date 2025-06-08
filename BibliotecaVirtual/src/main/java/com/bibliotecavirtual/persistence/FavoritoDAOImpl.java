@@ -3,8 +3,6 @@ package com.bibliotecavirtual.persistence;
 import com.bibliotecavirtual.model.Libro;
 
 import java.sql.ResultSet;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class FavoritoDAOImpl implements FavoritoDAO{
@@ -31,31 +29,17 @@ public class FavoritoDAOImpl implements FavoritoDAO{
     @Override
     public List<Libro> obtenerFavoritosPorUsuario(int id_usuario) throws Exception {
 
-        List<Libro> libros = new ArrayList<>();
-
         String sql = "SELECT l.* FROM favorito f JOIN libro l ON f.id_libro = l.id_libro WHERE f.id_usuario = ?";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario);
-
-        while(rs.next()){
-
-            libros.add(mapearLibro(rs));
-        }
-        return libros;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearLibro, id_usuario);
     }
 
     @Override
     public boolean esLibroFavorito(int id_usuario, int id_libro) throws Exception {
 
-        String sql = "SELECT COUNT(*) FROM favorito WHERE id_usuario = ? AND id_libro = ?";
+        String sql = "SELECT 1 FROM favorito WHERE id_usuario = ? AND id_libro = ? LIMIT 1";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario, id_libro);
-
-        if(rs.next()){
-
-            return rs.getInt(1)<0;
-        }
-        return false;
+        return DBHelper.obtenerEntidad(sql, rs -> true, id_usuario, id_libro) != null;
     }
 
     private Libro mapearLibro(ResultSet rs) throws Exception{

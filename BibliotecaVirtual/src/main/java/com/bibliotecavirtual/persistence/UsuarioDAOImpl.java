@@ -3,7 +3,6 @@ package com.bibliotecavirtual.persistence;
 import com.bibliotecavirtual.model.*;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioDAOImpl implements UsuarioDAO{
@@ -11,19 +10,11 @@ public class UsuarioDAOImpl implements UsuarioDAO{
     @Override
     public void registrarUsuario(Usuario usuario) throws Exception {
 
-        String sql = "INSERT INTO usuario (nombre, correo, contrasena, tipo, monedas) VALUES ('?', '?', '?', '?', '?');";
+        String sql = "INSERT INTO usuario (nombre, correo, contrasena, tipo, monedas) VALUES (?, ?, ?, ?, ?);";
 
-        Object monedasParametro;
+        Object monedas = (usuario instanceof Administrador) ? null:0;
 
-        if(usuario instanceof Administrador){
-
-            monedasParametro = null;
-        }else{
-
-            monedasParametro =0;
-        }
-
-        int filasAfectadas=DBHelper.manejarEntidad(sql, usuario.getNombre(), usuario.getCorreo(), usuario.getContrasena(), usuario.getTipo_usuario(), monedasParametro);
+        int filasAfectadas=DBHelper.manejarEntidad(sql, usuario.getNombre(), usuario.getCorreo(), usuario.getContrasena(), usuario.getTipo_usuario(), monedas);
 
         if(filasAfectadas ==0){
 
@@ -34,44 +25,24 @@ public class UsuarioDAOImpl implements UsuarioDAO{
     @Override
     public void actualizarUsuario(Usuario usuario) throws Exception {
 
-        String sql;
-        int filaAfectada;
-        Object monedasParametro;
+        boolean es_admin = usuario instanceof Administrador;
 
-        if (usuario instanceof Administrador) {
-            sql = "UPDATE usuario SET nombre = ?, correo = ?, contrasena = ?, tipo = ? WHERE id_usuario = ?";
-            monedasParametro = null;
-        } else {
-            sql = "UPDATE usuario SET nombre = ?, correo = ?, contrasena = ?, tipo = ?, monedas = ? WHERE id_usuario = ?";
-            monedasParametro = ((Cliente) usuario).getMonedas();
-        }
+        String sql = es_admin ? "UPDATE usuario SET nombre = ?, correo = ?, contrasena = ?, tipo = ? WHERE id_usuario = ?" : "UPDATE usuario SET nombre = ?, correo = ?, contrasena = ?, tipo = ?, monedas = ? WHERE id_usuario = ?";
 
-        if (usuario instanceof Administrador) {
-            filaAfectada = DBHelper.manejarEntidad(sql, usuario.getNombre(), usuario.getCorreo(), usuario.getContrasena(), usuario.getTipo_usuario(), usuario.getId());
-        } else {
-            filaAfectada = DBHelper.manejarEntidad(sql, usuario.getNombre(), usuario.getCorreo(), usuario.getContrasena(), usuario.getTipo_usuario(), monedasParametro, usuario.getId());
-        }
+        int fila_afectada = es_admin ? DBHelper.manejarEntidad(sql, usuario.getNombre(), usuario.getCorreo(), usuario.getContrasena(), usuario.getTipo_usuario(), usuario.getId()) : DBHelper.manejarEntidad(sql, usuario.getNombre(), usuario.getCorreo(), usuario.getContrasena(), usuario.getTipo_usuario(), ((Cliente) usuario).getMonedas(), usuario.getId());
 
-        if (filaAfectada == 0) {
+        if (fila_afectada == 0) {
+
             throw new Exception("No se pudo actualizar el usuario.");
         }
-
     }
 
     @Override
-    public void actualizarMonedas(int id_usuario, int nuevasMonedas) throws Exception {
+    public void actualizarMonedas(int id_usuario, int nuevas_monedas) throws Exception {
 
         String sql = "UPDATE usuario SET monedas = ? WHERE id_usuario = ?";
 
-        DBHelper.manejarEntidad(sql, nuevasMonedas, id_usuario);
-    }
-
-    @Override
-    public Usuario loguearUsuario(String correo, String contrasena) throws Exception {
-
-        String sql = "SELECT * FROM usuario WHERE correo = ? AND contrasena = ?;";
-
-        return buscarUsuarioPorCampo(sql, correo, contrasena);
+        DBHelper.manejarEntidad(sql, nuevas_monedas, id_usuario);
     }
 
     @Override
@@ -99,59 +70,33 @@ public class UsuarioDAOImpl implements UsuarioDAO{
     public Usuario buscarUsuarioPorId(int id_usuario) throws Exception {
         String sql ="SELECT * FROM usuario WHERE id_usuario = ?;";
 
-        return buscarUsuarioPorCampo(sql, id_usuario);
+        return DBHelper.obtenerEntidad(sql, this::mapearFilaUsuario, id_usuario);
     }
 
     @Override
     public Usuario buscarUsuarioPorCorreo(String correo) throws Exception {
         String sql ="SELECT * FROM usuario WHERE correo = ?;";
 
-        return buscarUsuarioPorCampo(sql, correo);
+        return DBHelper.obtenerEntidad(sql, this::mapearFilaUsuario, correo);
+    }
+
+    @Override
+    public Usuario loguearUsuario(String correo, String contrasena) throws Exception {
+
+        String sql = "SELECT * FROM usuario WHERE correo = ? AND contrasena = ?;";
+
+        return DBHelper.obtenerEntidad(sql, this::mapearFilaUsuario, correo, contrasena);
     }
 
     @Override
     public List<Usuario> buscarUsuariosPorTipo(String tipo_usuario) throws Exception {
 
-        List<Usuario> usuarios = new ArrayList<>();
-
         String sql ="SELECT * FROM usuario WHERE tipo = ?;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, tipo_usuario);
-        while(rs.next()){
-
-            usuarios.add(buscarUsuariosPorCampo(rs));
-        }
-
-        return usuarios;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearFilaUsuario, tipo_usuario);
     }
 
-    private Usuario buscarUsuarioPorCampo(String sql, Object... parametro) throws Exception{
-
-        Usuario usuario = null;
-
-        try(ResultSet rs = DBHelper.ejecutarConsulta(sql, parametro)){
-
-            if(rs.next()){
-
-                String tipo_usuario = rs.getString("tipo");
-
-                if(tipo_usuario.equals("normal")){
-
-                    usuario = new ClienteNormal(rs.getInt("id_usuario"), rs.getString("nombre"), rs.getString("correo"), rs.getString("contrasena"), rs.getString("tipo"), rs.getInt("monedas"));
-                } else if(tipo_usuario.equals("estudiante")){
-
-                    usuario = new ClienteEstudiante(rs.getInt("id_usuario"), rs.getString("nombre"), rs.getString("correo"), rs.getString("contrasena"), rs.getString("tipo"), rs.getInt("monedas"));
-                } else{
-
-                    usuario = new Administrador(rs.getInt("id_usuario"), rs.getString("nombre"), rs.getString("correo"), rs.getString("contrasena"), rs.getString("tipo"));
-                }
-            }
-        }
-
-        return usuario;
-    }
-
-    private Usuario buscarUsuariosPorCampo(ResultSet rs) throws Exception{
+    private Usuario mapearFilaUsuario(ResultSet rs) throws Exception{
 
         String tipo_usuario = rs.getString("tipo");
 

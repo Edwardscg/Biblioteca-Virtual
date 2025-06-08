@@ -2,7 +2,6 @@ package com.bibliotecavirtual.logic;
 
 import com.bibliotecavirtual.model.Valoracion;
 import com.bibliotecavirtual.persistence.LibroDAOImpl;
-import com.bibliotecavirtual.persistence.ValoracionDAO;
 import com.bibliotecavirtual.persistence.ValoracionDAOImpl;
 
 import java.util.List;
@@ -38,6 +37,7 @@ public class ValoracionService {
         libroDAO.actualizarPuntuacionYValoracion(id_libro, nuevo_promedio, nueva_cantidad);
     }
 
+    // CAMBIAR: DEVOLVER LISTA DE VALORACIONES, RECIBE SOLO ID_USUARIO COMO PARAMETRO
     public Valoracion obtenerValoracionPorUsuarioYLibro(int id_usuario, int id_libro) throws Exception{
 
         return valoracionDAO.obtenerValarionPorUsuarioYLibro(id_usuario, id_libro);

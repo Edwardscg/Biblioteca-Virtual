@@ -1,7 +1,6 @@
 package com.bibliotecavirtual.persistence;
 
 import com.bibliotecavirtual.model.Alquiler;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ public interface AlquilerDAO {
 
     void cancelarAlquiler(int id_alquiler) throws Exception;
 
-    Alquiler buscarAquilerPorId(int id_alquiler) throws Exception;
+    Alquiler buscarAlquilerPorId(int id_alquiler) throws Exception;
 
     List<Alquiler> verAlquileresPorUsuario(int id_usuario) throws Exception;
 
@@ -25,6 +24,6 @@ public interface AlquilerDAO {
 
     int obtnerPaginaActual(int id_alquiler) throws Exception;
 
-    boolean verificarALquilerActivo(int id_usuario, int id_libro) throws Exception;
+    boolean verificarAlquilerActivo(int id_usuario, int id_libro) throws Exception;
 
 }

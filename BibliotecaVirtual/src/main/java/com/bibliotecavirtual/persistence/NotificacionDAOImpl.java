@@ -24,13 +24,7 @@ public class NotificacionDAOImpl implements NotificacionDAO{
 
         String sql = "SELECT * FROM notificacion WHERE id_usuario = ? ORDER BY fecha_envio DESC;";
 
-        ResultSet rs = DBHelper.ejecutarConsulta(sql, id_usuario);
-
-        while(rs.next()){
-
-            notificaciones.add(mapearNotificacion(rs));
-        }
-        return notificaciones;
+        return DBHelper.obtenerListaEntidad(sql, this::mapearNotificacion, id_usuario);
     }
 
     @Override

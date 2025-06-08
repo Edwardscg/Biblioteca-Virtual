@@ -1,5 +1,6 @@
 package com.bibliotecavirtual.logic;
 
+import com.bibliotecavirtual.model.EstadoMembresia;
 import com.bibliotecavirtual.model.Membresia;
 import com.bibliotecavirtual.persistence.MembresiaDAOImpl;
 import java.time.LocalDate;
@@ -83,8 +84,8 @@ public class MembresiaService {
             throw new IllegalArgumentException("El costo no puede ser negativo.");
         }
 
-        String estado = membresia.getEstado().toString();
-        if (estado == null || (!estado.equals("activa") && !estado.equals("finalizada"))) {
+        EstadoMembresia estado = membresia.getEstado();
+        if ((estado != EstadoMembresia.activa && estado != EstadoMembresia.finalizada)) {
             throw new IllegalArgumentException("Estado inválido. Debe ser 'activa' o 'finalizada'.");
         }
     }

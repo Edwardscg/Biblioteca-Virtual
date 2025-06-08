@@ -11,7 +11,7 @@ public class Libro {
     private String pdf_url;
     private String portada_url;
     private int precio;
-    private float puntutacion_promedio;
+    private float puntuacion_promedio;
     private int cantidad_valoraciones;
     private LocalDate fecha_publicacion;
 
@@ -24,7 +24,7 @@ public class Libro {
         this.pdf_url = pdf_url;
         this.portada_url = portada_url;
         this.precio = precio;
-        this.puntutacion_promedio = puntutacion_promedio;
+        this.puntuacion_promedio = puntutacion_promedio;
         this.cantidad_valoraciones = cantidad_valoraciones;
         this.fecha_publicacion = fecha_publicacion;
     }
@@ -93,12 +93,12 @@ public class Libro {
         this.precio = precio;
     }
 
-    public float getPuntutacion_promedio() {
-        return puntutacion_promedio;
+    public float getPuntuacion_promedio() {
+        return puntuacion_promedio;
     }
 
-    public void setPuntutacion_promedio(float puntutacion_promedio) {
-        this.puntutacion_promedio = puntutacion_promedio;
+    public void setPuntuacion_promedio(float puntuacion_promedio) {
+        this.puntuacion_promedio = puntuacion_promedio;
     }
 
     public int getCantidad_valoraciones() {

@@ -1,5 +1,6 @@
 package com.bibliotecavirtual.logic;
 
+import com.bibliotecavirtual.model.Cliente;
 import com.bibliotecavirtual.model.Usuario;
 import com.bibliotecavirtual.persistence.UsuarioDAOImpl;
 
@@ -14,6 +15,11 @@ public class UsuarioService {
     }
 
     public void registrarUsuario(Usuario usuario) throws Exception{
+
+        if(usuario instanceof Cliente){
+
+            usuario.setTipo_usuario("Cliente");
+        }
 
         if (usuario == null || usuario.getNombre().isBlank() || usuario.getCorreo().isBlank() || usuario.getContrasena().isBlank()) {
             throw new IllegalArgumentException("Datos del usuario incompletos.");
@@ -103,6 +109,34 @@ public class UsuarioService {
 
         CorreoService correoService = new CorreoService();
         correoService.enviarCorreo(usuario.getCorreo(), asunto, cuerpo);
+    }
+
+    public boolean actualizarContraseña(String correo, String nueva_contraseña){
+
+        try{
+
+            if(correo == null || correo.isBlank() || nueva_contraseña == null ||nueva_contraseña.isBlank()){
+
+                return false;
+            }
+
+            Usuario usuario = usuarioDAO.buscarUsuarioPorCorreo(correo);
+
+            if(usuario==null){
+
+                return false;
+            }
+
+            usuario.setContrasena(nueva_contraseña);
+            usuarioDAO.actualizarUsuario(usuario);
+
+            return true;
+
+        }catch (Exception e){
+
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void eliminarUsuario(int id_usuario) throws Exception {

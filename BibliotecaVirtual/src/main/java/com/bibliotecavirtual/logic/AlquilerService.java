@@ -1,12 +1,11 @@
 package com.bibliotecavirtual.logic;
 
-import com.bibliotecavirtual.model.*;
-import com.bibliotecavirtual.persistence.AlquilerDAO;
+import com.bibliotecavirtual.model.Alquiler;
+import com.bibliotecavirtual.model.Cliente;
+import com.bibliotecavirtual.model.Libro;
+import com.bibliotecavirtual.model.Usuario;
 import com.bibliotecavirtual.persistence.AlquilerDAOImpl;
-import org.checkerframework.checker.units.qual.A;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class AlquilerService {
         int id_libro = alquiler.getLibro().getId();
         int costo_alquiler = alquiler.getLibro().getPrecio();
 
-        if(alquilerDAO.verificarALquilerActivo(id_usuario, id_libro)){
+        if(alquilerDAO.verificarAlquilerActivo(id_usuario, id_libro)){
 
             throw new Exception("Ya tienes un alquiler activo de este libro.");
         }
@@ -57,7 +56,7 @@ public class AlquilerService {
 
     public void finalizarAlquiler (int id_alquiler) throws Exception{
 
-        Alquiler alquiler = alquilerDAO.buscarAquilerPorId(id_alquiler);
+        Alquiler alquiler = alquilerDAO.buscarAlquilerPorId(id_alquiler);
 
         alquilerDAO.finalizarAlquiler(id_alquiler);
 
@@ -67,10 +66,10 @@ public class AlquilerService {
         NotificacionService notificacionService = new NotificacionService();
         notificacionService.enviarNotificacion(alquiler.getCliente().getId(), tipo_notificacion, mensaje);
     }
-
+    // POSIBLE BORRADO
     public void cancelarAlquiler (int id_alquiler) throws Exception{
 
-        Alquiler alquiler = alquilerDAO.buscarAquilerPorId(id_alquiler);
+        Alquiler alquiler = alquilerDAO.buscarAlquilerPorId(id_alquiler);
 
         alquilerDAO.cancelarAlquiler(id_alquiler);
 
@@ -80,10 +79,10 @@ public class AlquilerService {
         NotificacionService notificacionService = new NotificacionService();
         notificacionService.enviarNotificacion(alquiler.getCliente().getId(), tipo_notificacion, mensaje);
     }
-
+    // POSIBLE BORRADO
     public Alquiler buscarAlquilerPorId(int id_alquiler) throws Exception{
 
-        return alquilerDAO.buscarAquilerPorId(id_alquiler);
+        return alquilerDAO.buscarAlquilerPorId(id_alquiler);
     }
 
     public List<Alquiler> verAlquileresPorUsuario(int id_usuario) throws Exception{
@@ -106,14 +105,14 @@ public class AlquilerService {
         alquilerDAO.actualizarPaginaActual(id_alquiler, nueva_pagina);
     }
 
-    public void obtenerPaginaActual(int id_alquiler) throws Exception{
+    public int obtenerPaginaActual(int id_alquiler) throws Exception{
 
-        alquilerDAO.obtnerPaginaActual(id_alquiler);
+        return alquilerDAO.obtnerPaginaActual(id_alquiler);
     }
 
     public boolean verificarAlquilerActivoDeUsuario(int id_usuario, int id_libro) throws Exception{
 
-        return alquilerDAO.verificarALquilerActivo(id_usuario, id_libro);
+        return alquilerDAO.verificarAlquilerActivo(id_usuario, id_libro);
     }
 
     public List<Libro> obtenerLibrosAqluiladosPorUsuario(int id_usuario)throws Exception{
